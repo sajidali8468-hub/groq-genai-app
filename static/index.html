@@ -3,41 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
-    <title>GenAI | Premium</title>
+    <title>GenAI Portal | Technical Intelligence Workspace</title>
 </head>
-<body class="bg-[#f5f5f7] text-[#1d1d1f] font-sans antialiased">
-    <nav class="p-6 flex justify-between items-center bg-white/70 backdrop-blur-md sticky top-0 z-50">
-        <span class="text-xl font-semibold tracking-tight">GenAI Portal</span>
-        <div class="space-x-8 text-sm">
-            <a href="#" class="hover:text-blue-500 transition">Solutions</a>
-            <a href="#" class="hover:text-blue-500 transition">Performance</a>
-        </div>
-    </nav>
+<body>
+    <div class="site-shell">
+        <nav class="nav">
+            <a class="brand" href="#top" aria-label="GenAI Portal home">
+                <span class="brand-mark"></span>
+                <span>GenAI Portal</span>
+            </a>
+            <div class="nav-links" aria-label="Primary navigation">
+                <a href="#workspace">Workspace</a>
+                <a href="#analytics">Analytics</a>
+                <a href="#trust">Trust</a>
+            </div>
+            <button class="nav-action magnetic-btn" type="button" onclick="startAnalysis(event)">Launch</button>
+        </nav>
 
-    <main class="max-w-4xl mx-auto mt-20 px-6">
-        <header class="text-center mb-12">
-            <h1 class="text-6xl font-bold tracking-tight mb-4">Intelligence, redefined.</h1>
-            <p class="text-xl text-gray-500">Transform complex data into structured insights instantly.</p>
+        <header id="top" class="hero section-reveal">
+            <div class="particles" aria-hidden="true"></div>
+            <div class="orb orb-one" aria-hidden="true"></div>
+            <div class="orb orb-two" aria-hidden="true"></div>
+
+            <div class="holo-card card-one parallax-layer" data-depth="16">
+                <span>Latency</span>
+                <strong>0.82s</strong>
+                <i></i>
+            </div>
+            <div class="holo-card card-two parallax-layer" data-depth="26">
+                <span>Signal Quality</span>
+                <strong>98%</strong>
+                <i></i>
+            </div>
+            <div class="holo-card card-three parallax-layer" data-depth="20">
+                <span>Reports</span>
+                <strong>Live</strong>
+                <i></i>
+            </div>
+
+            <div class="ai-assistant parallax-layer" data-depth="10" aria-hidden="true">
+                <div class="assistant-head"></div>
+                <div class="assistant-body"></div>
+                <div class="assistant-arm arm-left"></div>
+                <div class="assistant-arm arm-right"></div>
+            </div>
+
+            <div class="hero-content">
+                <p class="eyebrow">AI Technical Transformation Platform</p>
+                <h1>
+                    <span id="typingHeadline">Intelligence, redefined.</span>
+                    <span class="cursor" aria-hidden="true"></span>
+                </h1>
+                <p class="hero-copy">
+                    Upload notes, paste architecture context, ask your assistant, and turn messy technical input into executive-ready Markdown in seconds.
+                </p>
+                <div class="hero-actions">
+                    <button class="primary-btn magnetic-btn" type="button" onclick="startAnalysis(event)">
+                        <span class="btn-label">Start Analysis</span>
+                        <span class="spinner" aria-hidden="true"></span>
+                    </button>
+                    <button class="secondary-btn magnetic-btn" type="button" onclick="openAssistantPanel(event)">Open Assistant</button>
+                </div>
+            </div>
         </header>
 
-        <section class="glass-card p-8 rounded-3xl shadow-2xl bg-white">
-            <textarea
-                id="userInput"
-                class="w-full h-32 p-4 bg-transparent border-none focus:ring-0 text-lg"
-                placeholder="Describe your technical problem..."
-            ></textarea>
-            <div class="flex justify-between items-center mt-4">
-                <span id="latency" class="text-xs text-gray-400">Ready</span>
-                <button onclick="sendQuery()" class="bg-black text-white px-8 py-3 rounded-full hover:opacity-80 transition">
-                    Generate
-                </button>
-            </div>
-        </section>
+        <main>
+            <section id="analytics" class="metrics section-reveal" aria-label="Platform analytics">
+                <article>
+                    <strong class="counter" data-target="12480">0</strong>
+                    <span>Reports Generated</span>
+                </article>
+                <article>
+                    <strong><span class="counter" data-target="98">0</span>%</strong>
+                    <span>Accuracy</span>
+                </article>
+                <article>
+                    <strong class="counter" data-target="7420">0</strong>
+                    <span>Users Helped</span>
+                </article>
+            </section>
 
-        <div id="output" class="mt-12 p-8 bg-white rounded-3xl hidden shadow-lg border border-gray-100"></div>
-    </main>
+            <section id="workspace" class="workspace section-reveal" aria-label="AI analysis workspace">
+                <div class="section-heading">
+                    <p class="eyebrow">Live Workspace</p>
+                    <h2>Move from raw input to polished insight.</h2>
+                    <p>Combine files, pasted text, and focused questions into a single technical summary request.</p>
+                </div>
+
+                <div class="workspace-grid">
+                    <form class="analysis-panel glass-panel" onsubmit="sendQuery(event)">
+                        <label class="upload-box" for="documentUpload">
+                            <input id="documentUpload" type="file" accept=".txt,.md,.csv,.json,.pdf">
+                            <span class="upload-icon">+</span>
+                            <strong>Upload document</strong>
+                            <small id="fileStatus">TXT, MD, CSV, JSON, or PDF context</small>
+                        </label>
+
+                        <label class="field-label" for="userInput">Paste technical context</label>
+                        <textarea id="userInput" placeholder="Paste architecture notes, incident details, migration plans, logs, or rough meeting notes..."></textarea>
+
+                        <label class="field-label" for="askInput">Ask AI</label>
+                        <input id="askInput" type="text" placeholder="Example: summarize risks and recommended next actions">
+
+                        <div class="panel-actions">
+                            <span id="latency">Ready</span>
+                            <button class="primary-btn magnetic-btn" id="generateButton" type="submit">
+                                <span class="btn-label">Generate Summary</span>
+                                <span class="spinner" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <aside class="response-stack" aria-live="polite">
+                        <div class="response-card glass-panel">
+                            <span class="card-kicker">Output</span>
+                            <h3>Executive Summary</h3>
+                            <div id="output" class="output-empty">
+                                Your generated summary, risks, recommendations, and next steps will appear here.
+                            </div>
+                        </div>
+                        <div class="quick-cards">
+                            <article class="glass-panel mini-card">
+                                <strong>Export Ready</strong>
+                                <span>Markdown-friendly response formatting.</span>
+                            </article>
+                            <article class="glass-panel mini-card">
+                                <strong>Guardrailed</strong>
+                                <span>Focused on technical transformation input.</span>
+                            </article>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+
+            <section id="trust" class="trust section-reveal" aria-label="Trust signals">
+                <article class="glass-panel">
+                    <span class="trust-icon secure"></span>
+                    <h3>Secure</h3>
+                    <p>Secrets stay server-side and requests flow through your backend.</p>
+                </article>
+                <article class="glass-panel">
+                    <span class="trust-icon fast"></span>
+                    <h3>Fast</h3>
+                    <p>Designed for quick executive summaries and low-friction analysis.</p>
+                </article>
+                <article class="glass-panel">
+                    <span class="trust-icon enterprise"></span>
+                    <h3>Enterprise Ready</h3>
+                    <p>Clear structure, dependable UX, and deployment-friendly architecture.</p>
+                </article>
+            </section>
+        </main>
+    </div>
+
+    <div id="assistantPanel" class="assistant-panel" aria-hidden="true">
+        <div class="panel-backdrop" onclick="closeAssistantPanel()"></div>
+        <section class="chat-drawer glass-panel" role="dialog" aria-modal="true" aria-label="AI assistant panel">
+            <button class="close-btn" type="button" onclick="closeAssistantPanel()" aria-label="Close assistant panel">x</button>
+            <p class="eyebrow">Assistant Online</p>
+            <h2>How can I help analyze your system?</h2>
+            <p>Use the workspace to generate full reports, or start by asking a focused technical question.</p>
+            <button class="primary-btn magnetic-btn" type="button" onclick="startAnalysis(event); closeAssistantPanel();">
+                <span class="btn-label">Go to Workspace</span>
+                <span class="spinner" aria-hidden="true"></span>
+            </button>
+        </section>
+    </div>
 
     <script src="/static/script.js"></script>
 </body>
