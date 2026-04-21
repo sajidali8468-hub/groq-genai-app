@@ -416,6 +416,133 @@ st.markdown(
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Apple-inspired GenAI dashboard color system */
+        :root {
+            --ink: #1D1D1F;
+            --muted: rgba(29, 29, 31, 0.68);
+            --cyan: #0066CC;
+            --blue: #0066CC;
+            --panel: rgba(255, 255, 255, 0.72);
+            --line: rgba(29, 29, 31, 0.10);
+        }
+
+        .stApp {
+            color: #1D1D1F;
+            background: #FFFFFF;
+        }
+
+        [data-testid="stSidebar"] {
+            background: rgba(245, 245, 247, 0.86);
+            border-right: 1px solid rgba(29, 29, 31, 0.10);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        [data-testid="stSidebar"] * {
+            color: #1D1D1F;
+        }
+
+        .hero {
+            border: 1px solid rgba(29, 29, 31, 0.10);
+            background:
+                radial-gradient(circle at 50% 24%, rgba(0, 102, 204, 0.12), transparent 34%),
+                linear-gradient(180deg, #FFFFFF 0%, #F5F5F7 100%);
+            box-shadow: 0 28px 90px rgba(29, 29, 31, 0.10);
+        }
+
+        .hero::before {
+            background:
+                repeating-linear-gradient(90deg, transparent 0 68px, rgba(29, 29, 31, 0.035) 69px 70px),
+                repeating-linear-gradient(0deg, transparent 0 58px, rgba(29, 29, 31, 0.03) 59px 60px);
+        }
+
+        .hero::after {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.82), transparent 30%, transparent 70%, rgba(255, 255, 255, 0.82));
+        }
+
+        .particles,
+        .particles::before,
+        .particles::after {
+            background-image:
+                radial-gradient(circle, rgba(0, 102, 204, 0.18) 0 1px, transparent 1.5px),
+                radial-gradient(circle, rgba(29, 29, 31, 0.10) 0 1px, transparent 1.5px);
+            opacity: 0.36;
+        }
+
+        .hero-title,
+        .holo-card strong,
+        .metric-card strong,
+        .section-title,
+        .trust-card h3,
+        .stMarkdown h2,
+        .stMarkdown h3 {
+            color: #1D1D1F;
+        }
+
+        .hero-copy,
+        .holo-card span,
+        .metric-card span,
+        .trust-card p,
+        .section-copy {
+            color: rgba(29, 29, 31, 0.68);
+        }
+
+        .eyebrow {
+            color: #0066CC;
+        }
+
+        .hero-cta,
+        .stButton > button {
+            border: 1px solid #0066CC;
+            color: #FFFFFF !important;
+            background: #0066CC;
+            box-shadow: 0 16px 38px rgba(0, 102, 204, 0.22);
+        }
+
+        .hero-cta:hover,
+        .stButton > button:hover {
+            box-shadow: 0 22px 54px rgba(0, 102, 204, 0.26);
+        }
+
+        .metric-card,
+        .trust-card,
+        .result-card,
+        .holo-card {
+            border: 1px solid rgba(29, 29, 31, 0.10);
+            background: rgba(255, 255, 255, 0.72);
+            box-shadow: 0 24px 70px rgba(29, 29, 31, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .ai-head,
+        .ai-body,
+        .ai-arm {
+            border-color: rgba(29, 29, 31, 0.10);
+            background: rgba(255, 255, 255, 0.56);
+        }
+
+        div[data-testid="stTextArea"] textarea,
+        div[data-testid="stTextInput"] input,
+        div[data-testid="stFileUploader"] section {
+            color: #1D1D1F;
+            border: 1px solid rgba(29, 29, 31, 0.10);
+            background: rgba(255, 255, 255, 0.82);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.36);
+        }
+
+        div[data-testid="stTextArea"] textarea:focus,
+        div[data-testid="stTextInput"] input:focus {
+            border-color: rgba(0, 102, 204, 0.34);
+            box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.08);
+        }
+
+        div[data-testid="stTextArea"] label,
+        div[data-testid="stTextInput"] label,
+        div[data-testid="stFileUploader"] label {
+            color: #1D1D1F;
+        }
     </style>
     <section class="hero">
         <div class="particles"></div>

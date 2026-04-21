@@ -858,3 +858,181 @@ input[type="text"]:focus {
         opacity: 0.22;
     }
 }
+
+/* Apple-inspired GenAI dashboard color system */
+:root {
+    --bg: #FFFFFF;
+    --bg-soft: #F5F5F7;
+    --ink: #1D1D1F;
+    --muted: rgba(29, 29, 31, 0.68);
+    --line: rgba(29, 29, 31, 0.10);
+    --line-strong: rgba(0, 102, 204, 0.22);
+    --cyan: #0066CC;
+    --blue: #0066CC;
+    --panel: rgba(255, 255, 255, 0.72);
+    --panel-soft: rgba(245, 245, 247, 0.78);
+    --shadow: rgba(29, 29, 31, 0.10);
+}
+
+body {
+    color: var(--ink);
+    background: #FFFFFF;
+}
+
+body::before {
+    background-image:
+        linear-gradient(rgba(29, 29, 31, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(29, 29, 31, 0.025) 1px, transparent 1px);
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.42), transparent 78%);
+}
+
+.nav,
+.metrics article,
+.glass-panel,
+.holo-card,
+.chat-drawer {
+    border: 1px solid rgba(29, 29, 31, 0.10);
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow: 0 24px 70px rgba(29, 29, 31, 0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.hero {
+    border: 1px solid rgba(29, 29, 31, 0.10);
+    background:
+        radial-gradient(circle at 50% 24%, rgba(0, 102, 204, 0.12), transparent 34%),
+        linear-gradient(180deg, #FFFFFF 0%, #F5F5F7 100%);
+    box-shadow: 0 28px 90px rgba(29, 29, 31, 0.10);
+}
+
+.hero::before {
+    background:
+        repeating-linear-gradient(90deg, transparent 0 68px, rgba(29, 29, 31, 0.035) 69px 70px),
+        repeating-linear-gradient(0deg, transparent 0 58px, rgba(29, 29, 31, 0.03) 59px 60px);
+}
+
+.hero::after {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.82), transparent 30%, transparent 70%, rgba(255, 255, 255, 0.82));
+}
+
+.particles,
+.particles::before,
+.particles::after {
+    background-image:
+        radial-gradient(circle, rgba(0, 102, 204, 0.18) 0 1px, transparent 1.5px),
+        radial-gradient(circle, rgba(29, 29, 31, 0.10) 0 1px, transparent 1.5px);
+    opacity: 0.36;
+}
+
+.brand,
+.nav-links a:hover,
+h1,
+.section-heading h2,
+.response-card h3,
+.mini-card strong,
+.trust h3,
+.holo-card strong {
+    color: #1D1D1F;
+}
+
+.nav-links,
+.hero-copy,
+.holo-card span,
+.metrics span,
+.section-heading p:not(.eyebrow),
+.upload-box small,
+.field-label,
+#latency,
+.card-kicker,
+.mini-card span,
+.trust p,
+.output-empty {
+    color: rgba(29, 29, 31, 0.68);
+}
+
+.eyebrow,
+.cursor,
+.upload-icon {
+    color: #0066CC;
+}
+
+.cursor {
+    background: #0066CC;
+}
+
+.brand-mark,
+.trust-icon {
+    background: linear-gradient(135deg, #FFFFFF 0%, #DDEEFF 42%, #0066CC 100%);
+    box-shadow: 0 12px 34px rgba(0, 102, 204, 0.18);
+}
+
+.primary-btn,
+.nav-action {
+    border: 1px solid #0066CC;
+    color: #FFFFFF;
+    background: #0066CC;
+    box-shadow: 0 16px 38px rgba(0, 102, 204, 0.22);
+}
+
+.secondary-btn {
+    border: 1px solid rgba(29, 29, 31, 0.10);
+    color: #1D1D1F;
+    background: rgba(255, 255, 255, 0.72);
+}
+
+.magnetic-btn:hover {
+    box-shadow: 0 22px 54px rgba(0, 102, 204, 0.26);
+}
+
+.spinner {
+    border-color: rgba(255, 255, 255, 0.38);
+    border-top-color: #FFFFFF;
+}
+
+.orb-one,
+.orb-two {
+    background: rgba(0, 102, 204, 0.18);
+}
+
+.holo-card,
+.assistant-head,
+.assistant-body,
+.assistant-arm {
+    border-color: rgba(29, 29, 31, 0.10);
+    background: rgba(255, 255, 255, 0.56);
+}
+
+.holo-card i {
+    background: linear-gradient(90deg, #0066CC, transparent);
+}
+
+.workspace {
+    border-radius: 30px;
+    background: #F5F5F7;
+}
+
+.upload-box,
+textarea,
+input[type="text"] {
+    border-color: rgba(29, 29, 31, 0.10);
+    color: #1D1D1F;
+    background: rgba(255, 255, 255, 0.82);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.36);
+}
+
+.upload-box:hover,
+textarea:focus,
+input[type="text"]:focus {
+    border-color: rgba(0, 102, 204, 0.34);
+    background: #FFFFFF;
+    box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.08);
+}
+
+.generated-text {
+    color: #1D1D1F;
+}
+
+.panel-backdrop {
+    background: rgba(245, 245, 247, 0.72);
+}
