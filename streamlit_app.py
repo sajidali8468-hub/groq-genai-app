@@ -17,6 +17,51 @@ MODEL_OPTIONS = {
     "Higher quality: Llama 3.3 70B Versatile": "llama-3.3-70b-versatile",
 }
 
+MODEL_PRICING_PER_1M = {
+    "llama-3.1-8b-instant": {"input": 0.05, "output": 0.08},
+    "llama-3.3-70b-versatile": {"input": 0.59, "output": 0.79},
+}
+
+TECHNICAL_TERMS = {
+    "api",
+    "architecture",
+    "backend",
+    "cloud",
+    "code",
+    "database",
+    "deployment",
+    "devops",
+    "fastapi",
+    "frontend",
+    "infrastructure",
+    "latency",
+    "logs",
+    "migration",
+    "microservices",
+    "model",
+    "python",
+    "requirements",
+    "security",
+    "server",
+    "streamlit",
+    "system",
+    "technical",
+}
+
+NON_TECHNICAL_TERMS = {
+    "bake",
+    "cake",
+    "chicken",
+    "cook",
+    "cooking",
+    "dinner",
+    "food",
+    "love poem",
+    "pasta",
+    "recipe",
+    "restaurant",
+}
+
 
 def get_api_key():
     try:
@@ -38,11 +83,74 @@ def read_uploaded_text(uploaded_file):
         return f"Uploaded file: {uploaded_file.name}. The file could not be decoded as text."
 
 
+def is_out_of_scope(prompt):
+    normalized = prompt.lower()
+    has_non_technical = any(term in normalized for term in NON_TECHNICAL_TERMS)
+    has_technical = any(term in normalized for term in TECHNICAL_TERMS)
+    return has_non_technical and not has_technical
+
+
+def build_system_prompt(strict_grounding):
+    if not strict_grounding:
+        return SYSTEM_GUARDRAIL
+
+    return (
+        f"{SYSTEM_GUARDRAIL}\n"
+        "Strict Technical Grounding is enabled. Only use facts from the uploaded or pasted input. "
+        "If a claim is not supported by the supplied content, say it is not evidenced in the provided material. "
+        "When citations are useful, include concise Harvard-style references to the supplied document or notes."
+    )
+
+
+def serialize_groq_response(completion):
+    if hasattr(completion, "model_dump"):
+        return completion.model_dump()
+    if hasattr(completion, "to_dict"):
+        return completion.to_dict()
+    return {"raw": str(completion)}
+
+
+def usage_value(usage, name):
+    if usage is None:
+        return 0
+    if isinstance(usage, dict):
+        return usage.get(name, 0) or 0
+    return getattr(usage, name, 0) or 0
+
+
+def estimate_cost(model, prompt_tokens, completion_tokens):
+    pricing = MODEL_PRICING_PER_1M.get(model, {"input": 0, "output": 0})
+    input_cost = prompt_tokens * pricing["input"] / 1_000_000
+    output_cost = completion_tokens * pricing["output"] / 1_000_000
+    return input_cost + output_cost
+
+
+def default_performance():
+    return {
+        "latency": "Ready",
+        "tokens_per_second": "0",
+        "total_tokens": "0",
+        "cost": "$0.000000",
+        "signal": "Idle",
+    }
+
+
 st.set_page_config(
     page_title="GenAI Portal",
     page_icon="AI",
     layout="wide",
 )
+
+if "performance" not in st.session_state:
+    st.session_state.performance = default_performance()
+
+if "last_trace" not in st.session_state:
+    st.session_state.last_trace = None
+
+if "last_response_markdown" not in st.session_state:
+    st.session_state.last_response_markdown = ""
+
+performance = st.session_state.performance
 
 st.markdown(
     """
@@ -373,6 +481,33 @@ st.markdown(
             padding: 24px;
         }
 
+        .refusal-card {
+            border-color: rgba(255, 59, 48, 0.28) !important;
+            background: rgba(255, 59, 48, 0.08) !important;
+        }
+
+        .skeleton-card {
+            min-height: 178px;
+            overflow: hidden;
+        }
+
+        .skeleton-line {
+            height: 14px;
+            margin: 14px 0;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(29, 29, 31, 0.06), rgba(0, 102, 204, 0.12), rgba(29, 29, 31, 0.06));
+            background-size: 220% 100%;
+            animation: shimmer 1.2s ease-in-out infinite;
+        }
+
+        .skeleton-line.short {
+            width: 46%;
+        }
+
+        .skeleton-line.medium {
+            width: 72%;
+        }
+
         .trust-card h3 {
             margin: 0 0 10px;
             color: #f5fbff;
@@ -396,6 +531,11 @@ st.markdown(
         @keyframes gesture {
             0%, 100% { rotate: 0deg; }
             50% { rotate: 7deg; }
+        }
+
+        @keyframes shimmer {
+            from { background-position: 120% 0; }
+            to { background-position: -120% 0; }
         }
 
         @media (max-width: 820px) {
@@ -546,9 +686,9 @@ st.markdown(
     </style>
     <section class="hero">
         <div class="particles"></div>
-        <div class="holo-card card-one"><span>Latency</span><strong>0.82s</strong></div>
-        <div class="holo-card card-two"><span>Signal Quality</span><strong>98%</strong></div>
-        <div class="holo-card card-three"><span>Reports</span><strong>Live</strong></div>
+        <div class="holo-card card-one"><span>Latency</span><strong>__LATENCY__</strong></div>
+        <div class="holo-card card-two"><span>Signal Quality</span><strong>__SIGNAL__</strong></div>
+        <div class="holo-card card-three"><span>Tokens/Sec</span><strong>__TOKENS_PER_SECOND__</strong></div>
         <div class="ai-figure" aria-hidden="true">
             <div class="ai-head"></div>
             <div class="ai-body"></div>
@@ -565,24 +705,24 @@ st.markdown(
         </div>
     </section>
     <section class="metric-grid">
-        <article class="metric-card"><strong>12,480</strong><span>Reports Generated</span></article>
-        <article class="metric-card"><strong>98%</strong><span>Accuracy</span></article>
-        <article class="metric-card"><strong>7,420</strong><span>Users Helped</span></article>
+        <article class="metric-card"><strong>__TOTAL_TOKENS__</strong><span>Total Tokens Used</span></article>
+        <article class="metric-card"><strong>__COST__</strong><span>Estimated Generation Cost</span></article>
+        <article class="metric-card"><strong>98%</strong><span>Guardrail Confidence</span></article>
     </section>
     <span id="workspace" class="workspace-anchor"></span>
     <p class="eyebrow">Live Workspace</p>
     <h2 class="section-title">Move from raw input to polished insight.</h2>
     <p class="section-copy">Combine files, pasted text, and focused questions into a single technical summary request.</p>
-    """,
+    """
+    .replace("__LATENCY__", performance["latency"])
+    .replace("__SIGNAL__", performance["signal"])
+    .replace("__TOKENS_PER_SECOND__", performance["tokens_per_second"])
+    .replace("__TOTAL_TOKENS__", performance["total_tokens"])
+    .replace("__COST__", performance["cost"]),
     unsafe_allow_html=True,
 )
 
 api_key = get_api_key()
-
-MODEL_OPTIONS = {
-    "Fast: Llama 3.1 8B Instant": "llama-3.1-8b-instant",
-    "Higher quality: Llama 3.3 70B Versatile": "llama-3.3-70b-versatile",
-}
 
 st.sidebar.title("Settings")
 selected_model_label = st.sidebar.selectbox(
@@ -591,6 +731,23 @@ selected_model_label = st.sidebar.selectbox(
 )
 selected_model = MODEL_OPTIONS[selected_model_label]
 st.sidebar.caption(f"Using `{selected_model}`")
+strict_grounding = st.sidebar.toggle(
+    "Strict Technical Grounding",
+    value=True,
+    help="When enabled, the assistant must ground claims in the supplied document or pasted notes and use Harvard-style citations when useful.",
+)
+
+st.sidebar.divider()
+st.sidebar.subheader("Sanity Check")
+latency_slot = st.sidebar.empty()
+tps_slot = st.sidebar.empty()
+tokens_slot = st.sidebar.empty()
+cost_slot = st.sidebar.empty()
+
+latency_slot.metric("Latency", performance["latency"])
+tps_slot.metric("Tokens/Sec", performance["tokens_per_second"])
+tokens_slot.metric("Total Tokens", performance["total_tokens"])
+cost_slot.metric("Estimated Cost", performance["cost"])
 
 left_col, right_col = st.columns([1.05, 0.95], gap="large")
 
@@ -612,7 +769,8 @@ with left_col:
     generate = st.button("Generate Summary", type="primary", use_container_width=True)
 
 with right_col:
-    st.markdown(
+    result_placeholder = st.empty()
+    result_placeholder.markdown(
         """
         <div class="result-card">
             <p class="eyebrow">Output</p>
@@ -636,15 +794,50 @@ if generate:
         st.warning("Please upload a document, paste technical context, or ask a technical question first.")
         st.stop()
 
+    if is_out_of_scope(prompt):
+        refusal_message = "Input out of scope. This platform is restricted to Technical Documentation only."
+        st.toast(refusal_message)
+        result_placeholder.markdown(
+            f"""
+            <div class="result-card refusal-card">
+                <p class="eyebrow">Guardrail Refusal</p>
+                <h3>Input out of scope</h3>
+                <p class="section-copy">{refusal_message}</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.session_state.last_response_markdown = refusal_message
+        st.session_state.last_trace = {
+            "system_prompt": build_system_prompt(strict_grounding),
+            "request": {"model": selected_model, "strict_grounding": strict_grounding, "prompt": prompt},
+            "response": {"refusal": refusal_message},
+        }
+        st.stop()
+
     client = Groq(api_key=api_key)
+    system_prompt = build_system_prompt(strict_grounding)
     start_time = time.time()
+
+    result_placeholder.markdown(
+        """
+        <div class="result-card skeleton-card">
+            <p class="eyebrow">Generating</p>
+            <h3>Initializing intelligence...</h3>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line medium"></div>
+            <div class="skeleton-line short"></div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     with st.spinner("Initializing intelligence..."):
         try:
             completion = client.chat.completions.create(
                 model=selected_model,
                 messages=[
-                    {"role": "system", "content": SYSTEM_GUARDRAIL},
+                    {"role": "system", "content": system_prompt},
                     {"role": "user", "content": prompt},
                 ],
                 temperature=0.5,
@@ -656,12 +849,68 @@ if generate:
 
     response_text = completion.choices[0].message.content
     duration = time.time() - start_time
+    usage = getattr(completion, "usage", None)
+    prompt_tokens = usage_value(usage, "prompt_tokens")
+    completion_tokens = usage_value(usage, "completion_tokens")
+    total_tokens = usage_value(usage, "total_tokens") or prompt_tokens + completion_tokens
+    tokens_per_second = completion_tokens / duration if duration and completion_tokens else 0
+    cost = estimate_cost(selected_model, prompt_tokens, completion_tokens)
+
+    st.session_state.performance = {
+        "latency": f"{duration:.2f}s",
+        "tokens_per_second": f"{tokens_per_second:.0f}",
+        "total_tokens": f"{total_tokens:,}",
+        "cost": f"${cost:.6f}",
+        "signal": "98%",
+    }
+    st.session_state.last_response_markdown = response_text
+    st.session_state.last_trace = {
+        "system_prompt": system_prompt,
+        "request": {
+            "model": selected_model,
+            "strict_grounding": strict_grounding,
+            "temperature": 0.5,
+            "max_tokens": 1024,
+            "prompt_preview": prompt[:1200],
+        },
+        "response": serialize_groq_response(completion),
+        "metrics": st.session_state.performance,
+    }
+
+    latency_slot.metric("Latency", st.session_state.performance["latency"])
+    tps_slot.metric("Tokens/Sec", st.session_state.performance["tokens_per_second"])
+    tokens_slot.metric("Total Tokens", st.session_state.performance["total_tokens"])
+    cost_slot.metric("Estimated Cost", st.session_state.performance["cost"])
 
     log_performance(duration, len(response_text))
 
+    result_placeholder.markdown(
+        f"""
+        <div class="result-card">
+            <p class="eyebrow">Output</p>
+            <h3>Executive Summary</h3>
+            <p class="section-copy">Completed in {duration:.2f}s · {total_tokens:,} tokens · Estimated cost {cost:.6f}</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     st.markdown("### Generated Output")
     st.markdown(response_text)
+    st.download_button(
+        "Download as Markdown",
+        data=response_text,
+        file_name="genai-summary.md",
+        mime="text/markdown",
+        use_container_width=True,
+    )
     st.caption(f"Completed in {duration:.2f}s")
+
+if st.session_state.last_trace:
+    with st.expander("System Trace"):
+        st.markdown("#### System Prompt")
+        st.code(st.session_state.last_trace["system_prompt"], language="markdown")
+        st.markdown("#### Raw Groq Response / Trace")
+        st.json(st.session_state.last_trace)
 
 st.markdown(
     """
