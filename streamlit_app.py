@@ -36,6 +36,19 @@ if not api_key:
 
 client = Groq(api_key=api_key)
 
+MODEL_OPTIONS = {
+    "Fast: Llama 3.1 8B Instant": "llama-3.1-8b-instant",
+    "Higher quality: Llama 3.3 70B Versatile": "llama-3.3-70b-versatile",
+}
+
+st.sidebar.title("Settings")
+selected_model_label = st.sidebar.selectbox(
+    "Choose a model",
+    options=list(MODEL_OPTIONS.keys()),
+)
+selected_model = MODEL_OPTIONS[selected_model_label]
+st.sidebar.caption(f"Using `{selected_model}`")
+
 user_input = st.text_area(
     "Technical input",
     placeholder="Describe your technical problem, migration plan, architecture issue, or system notes...",
@@ -56,7 +69,7 @@ if generate:
     with st.spinner("Generating..."):
         try:
             completion = client.chat.completions.create(
-                model="llama3-8b-8192",
+                model=selected_model,
                 messages=[
                     {"role": "system", "content": SYSTEM_GUARDRAIL},
                     {"role": "user", "content": prompt},
